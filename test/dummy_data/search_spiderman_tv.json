@@ -1,0 +1,351 @@
+{
+  "page": 1,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/fVL0nCyOhdBaeX4KdfNaeqM9hlm.jpg",
+      "genre_ids": [
+        10762,
+        16,
+        10759
+      ],
+      "id": 1482,
+      "origin_country": [
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "Spider-Man",
+      "overview": "The bite of a radioactive spider transforms a teen into a superhero.",
+      "popularity": 32.116,
+      "poster_path": "/d6mdEFwNYxF3CVSaGBgKpibpizK.jpg",
+      "first_air_date": "1967-09-09",
+      "name": "Spider-Man",
+      "vote_average": 7.7,
+      "vote_count": 191
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/fFWdqlnBVNMLDneYUeQLFuPBq4Z.jpg",
+      "genre_ids": [
+        16,
+        10759
+      ],
+      "id": 888,
+      "origin_country": [
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "Spider-Man",
+      "overview": "Bitten by a neogenetic spider, Peter Parker develops spider-like superpowers. He uses these to fight crime while trying to balance it with the struggles of his personal life.",
+      "popularity": 80.982,
+      "poster_path": "/wXthtEN5kdWA1bHz03lkuCJS6hA.jpg",
+      "first_air_date": "1994-11-19",
+      "name": "Spider-Man",
+      "vote_average": 8.3,
+      "vote_count": 1013
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/gQENev4ojlGQd05ic9SiXlaXSzM.jpg",
+      "genre_ids": [
+        16,
+        10762
+      ],
+      "id": 3973,
+      "origin_country": [
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "Spider-Man",
+      "overview": "Spider-Man is an American animated TV series based on the popular Marvel Comics character of the same name.",
+      "popularity": 16.337,
+      "poster_path": "/5xZac4wWUlXQmEBqIIKJ9rqXnUh.jpg",
+      "first_air_date": "1981-09-12",
+      "name": "Spider-Man",
+      "vote_average": 7.1,
+      "vote_count": 64
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/lY0BBKyITxaLllWcz1OOY2Vb9Li.jpg",
+      "genre_ids": [
+        10759,
+        10765
+      ],
+      "id": 2640,
+      "origin_country": [
+        "JP"
+      ],
+      "original_language": "ja",
+      "original_name": "スパイダーマン",
+      "overview": "Follow the exploits of motorcycle racer turned super hero Takuya Yamashiro, as he slings and swings, battling the evil Iron Cross Army along the way.",
+      "popularity": 24.18,
+      "poster_path": "/38AVLCBEoQKJWMyzt9jkxqeefGb.jpg",
+      "first_air_date": "1978-05-17",
+      "name": "Japanese Spiderman",
+      "vote_average": 7.3,
+      "vote_count": 120
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/qDum1yhNftUMaIB3pPiZ7PLsIto.jpg",
+      "genre_ids": [
+        16,
+        10765,
+        35,
+        10751
+      ],
+      "id": 72705,
+      "origin_country": [
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "Marvel's Spider-Man",
+      "overview": "An insecure but courageous and intelligent teen named Peter Parker, a new student of Midtown High, is bitten by a radioactive spider and given powers. He becomes a hero named Spider-Man after the death of his uncle and he must adapt to this new way of life.",
+      "popularity": 69.79,
+      "poster_path": "/dKdcyyHUR5WTMnrbPdYN5y9xPVp.jpg",
+      "first_air_date": "2017-08-19",
+      "name": "Marvel's Spider-Man",
+      "vote_average": 7.5,
+      "vote_count": 354
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/hF2Dnx9g6pm87UJ6RJ58PrpdMWQ.jpg",
+      "genre_ids": [
+        10759,
+        16,
+        10751,
+        10765
+      ],
+      "id": 1269,
+      "origin_country": [
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "Spider-Man and His Amazing Friends",
+      "overview": "Spider-Man and His Amazing Friends is an American animated television series produced by Marvel Productions starring established Marvel Comics characters Spider-Man and Iceman and an original character, Firestar. As a trio called the Spider-Friends, they fought against various villains.",
+      "popularity": 27.652,
+      "poster_path": "/4b8HFH1arZ4b05RHwxPc2JfueYv.jpg",
+      "first_air_date": "1981-09-12",
+      "name": "Spider-Man and His Amazing Friends",
+      "vote_average": 7.4,
+      "vote_count": 236
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/nVHovBi2yqZAYW17273ytA8SE7c.jpg",
+      "genre_ids": [
+        16,
+        10759,
+        10765
+      ],
+      "id": 1664,
+      "origin_country": [
+        "CA",
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "Spider-Man: The New Animated Series",
+      "overview": "Bitten by an irradiated spider, teenager Peter Parker gains arachnid-like powers that make him both a hero to those in need and a vigilante wanted by the police.",
+      "popularity": 32.154,
+      "poster_path": "/v3UfqXCAxAcI7oUO4zwtk1T9G3n.jpg",
+      "first_air_date": "2003-07-11",
+      "name": "Spider-Man: The New Animated Series",
+      "vote_average": 7.1,
+      "vote_count": 350
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/fypGcrQCyb9vQ7L8AM6PHCjQSBC.jpg",
+      "genre_ids": [
+        10759,
+        16,
+        10762,
+        10751
+      ],
+      "id": 3854,
+      "origin_country": [
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "The Spectacular Spider-Man",
+      "overview": "Having spent the summer engaging common criminals with his new-found powers, not so typical 16-year-old Peter Parker must conceal his secret identity and battle super-villains in the real world as he enters his junior year of high school.",
+      "popularity": 46.13,
+      "poster_path": "/dCNxOhXT7c4lqYuRpdM3m8s9XDp.jpg",
+      "first_air_date": "2008-03-08",
+      "name": "The Spectacular Spider-Man",
+      "vote_average": 8.6,
+      "vote_count": 788
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/gXeCzYmCRBlpbbhhKrYM1ZpIDAA.jpg",
+      "genre_ids": [
+        10762,
+        10759,
+        16,
+        35,
+        10751
+      ],
+      "id": 34391,
+      "origin_country": [
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "Marvel's Ultimate Spider-Man",
+      "overview": "While being trained by S.H.I.E.L.D., Spider-Man battles evil with a new team of teen colleagues.",
+      "popularity": 35.636,
+      "poster_path": "/91hqeylCZsMLfcBuuflaVJ5w2nm.jpg",
+      "first_air_date": "2012-04-01",
+      "name": "Marvel's Ultimate Spider-Man",
+      "vote_average": 7.7,
+      "vote_count": 990
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/6CPSftO0ZsMOS9JxhxEwsSQfLmt.jpg",
+      "genre_ids": [
+        16,
+        10759,
+        10765,
+        10762
+      ],
+      "id": 10079,
+      "origin_country": [
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "Spider-Man Unlimited",
+      "overview": "Spider-Man travels to Counter-Earth to rescue a Terran shuttle crew trapped there and discovers a tyrannical & warped version of his world.",
+      "popularity": 20.704,
+      "poster_path": "/fvmC5QzQwkI5ZNJauE4xpF24PTB.jpg",
+      "first_air_date": "1999-10-02",
+      "name": "Spider-Man Unlimited",
+      "vote_average": 7.46,
+      "vote_count": 226
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/49VI6PxMo3swVqq0VLELEQ2fpks.jpg",
+      "genre_ids": [
+        10765,
+        10759
+      ],
+      "id": 4552,
+      "origin_country": [
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "The Amazing Spider-Man",
+      "overview": "The first live-action TV series based on the popular comic book.",
+      "popularity": 11.374,
+      "poster_path": "/kUTCJhSnH3Dt0KVzcQp8DnbmsjN.jpg",
+      "first_air_date": "1978-04-05",
+      "name": "The Amazing Spider-Man",
+      "vote_average": 5.9,
+      "vote_count": 26
+    },
+    {
+      "adult": false,
+      "backdrop_path": null,
+      "genre_ids": [
+        16,
+        10759
+      ],
+      "id": 138503,
+      "origin_country": [
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "Your Friendly Neighborhood Spider-Man",
+      "overview": "Follow Peter Parker on his way to becoming Spider-Man, with a journey unlike any we've ever seen.",
+      "popularity": 16.259,
+      "poster_path": "/o7dy7nkwTvRWH75wBHUYOsGJmOH.jpg",
+      "first_air_date": "2025-01-29",
+      "name": "Your Friendly Neighborhood Spider-Man",
+      "vote_average": 0.0,
+      "vote_count": 0
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/sGfxqJgnOStvTr9wXZiD6amshX8.jpg",
+      "genre_ids": [
+        18,
+        80,
+        10759
+      ],
+      "id": 235446,
+      "origin_country": [
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "Web of Spider-Man",
+      "overview": "After the mob has Gwen Stacy killed, Spider-man sets out to get revenge on those responsible. But as Spider-man's public image grows, he must decide who he wants to be: vigilante or hero.",
+      "popularity": 5.8,
+      "poster_path": "/bS8GOcp83N1IPaU5pQbIHrj1QY5.jpg",
+      "first_air_date": "2023-09-12",
+      "name": "Web of Spider-Man",
+      "vote_average": 6.0,
+      "vote_count": 1
+    },
+    {
+      "adult": false,
+      "backdrop_path": null,
+      "genre_ids": [],
+      "id": 15178,
+      "origin_country": [],
+      "original_language": "en",
+      "original_name": "Spidey Super Stories",
+      "overview": "A live-action, recurring skit on the PBS children's television series The Electric Company. Episodes featured the Marvel Comics character Spider-Man, provided to the Children's Television Workshop free of charge, and was played by puppeteer and dancer Danny Seagren.\n\nStories involved the masked superhero foiling mischievous characters who were involved in petty criminal activities. The cast of The Electric Company played the roles of the various characters in each story, with another serving as narrator. In many of these sketches, viewers were addressed as \"true believers.\"\n\nUnlike other live-action and cartoon productions of Spider-Man, this version of the web-slinging hero did not speak out loud, instead communicating only with word balloons, in order to encourage young viewers to practice their reading skills because he was drawn without a mouth. He also never appeared out of his costume as Peter Parker and, given the series' budget limitations, used his web-shooters sparingly.",
+      "popularity": 6.947,
+      "poster_path": "/cSHETWKC1JPQ3cNmpMCx9vMPoBs.jpg",
+      "first_air_date": "1974-10-21",
+      "name": "Spidey Super Stories",
+      "vote_average": 0.0,
+      "vote_count": 0
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/c9yt35xsfJlMs0eL7apmUsGiy6K.jpg",
+      "genre_ids": [
+        99
+      ],
+      "id": 205564,
+      "origin_country": [
+        "AU"
+      ],
+      "original_language": "en",
+      "original_name": "The Disappearance of William Tyrrell",
+      "overview": "The series breaks down the investigation into a step-by-step analysis, told through the captivating story skills of Australian journalist Caroline Overington, who has been covering the case since the beginning, and through the explosive first-hand experience of former Detective Inspector Gary Jubelin.",
+      "popularity": 3.571,
+      "poster_path": "/wSQZzHHzCYPOODHIeoQeBWrwOvs.jpg",
+      "first_air_date": "2021-07-20",
+      "name": "The Disappearance of William Tyrrell",
+      "vote_average": 3.0,
+      "vote_count": 2
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/7EP5TQPlmxKb01wXRcgw0m6A4p1.jpg",
+      "genre_ids": [
+        99
+      ],
+      "id": 256162,
+      "origin_country": [
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "Icons Unearthed: Spider Man",
+      "overview": "The story of the tug of war between Marvel and Sony and how two studios found a way to share the character and the profits. Spider-man's journey to the screen overcomes bankruptcy, multiple lawsuits, reboots, and unrealized potential.",
+      "popularity": 2.552,
+      "poster_path": "/wZiSjLZz3pB8YOKRAZcCeMM7HiV.jpg",
+      "first_air_date": "2024-07-10",
+      "name": "Icons Unearthed: Spider Man",
+      "vote_average": 9.0,
+      "vote_count": 1
+    }
+  ],
+  "total_pages": 1,
+  "total_results": 16
+}

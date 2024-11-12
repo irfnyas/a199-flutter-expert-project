@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ditonton/common/state_enum.dart';
 import 'package:ditonton/domain/entities/movie.dart';
 import 'package:ditonton/presentation/pages/movie_detail_page.dart';
@@ -13,6 +15,8 @@ import 'movie_detail_page_test.mocks.dart';
 
 @GenerateMocks([MovieDetailNotifier])
 void main() {
+  HttpOverrides.global = TestHttpOverrides();
+
   late MockMovieDetailNotifier mockNotifier;
 
   setUp(() {
@@ -70,7 +74,7 @@ void main() {
     when(mockNotifier.isAddedToWatchlist).thenReturn(false);
     when(mockNotifier.watchlistMessage).thenReturn('Added to Watchlist');
 
-    final watchlistButton = find.byType(ElevatedButton);
+    final watchlistButton = find.byIcon(Icons.add);
 
     await tester.pumpWidget(_makeTestableWidget(MovieDetailPage(id: 1)));
 
@@ -93,7 +97,7 @@ void main() {
     when(mockNotifier.isAddedToWatchlist).thenReturn(false);
     when(mockNotifier.watchlistMessage).thenReturn('Failed');
 
-    final watchlistButton = find.byType(ElevatedButton);
+    final watchlistButton = find.byIcon(Icons.add);
 
     await tester.pumpWidget(_makeTestableWidget(MovieDetailPage(id: 1)));
 

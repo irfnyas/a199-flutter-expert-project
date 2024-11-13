@@ -1,11 +1,10 @@
 import 'package:ditonton/common/constants.dart';
-import 'package:ditonton/common/state_enum.dart';
 import 'package:ditonton/presentation/provider/movie_search_notifier.dart';
 import 'package:ditonton/presentation/provider/tv_search_notifier.dart';
 import 'package:ditonton/presentation/widgets/movie_card_list.dart';
 import 'package:ditonton/presentation/widgets/tv_card_list.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SearchPage extends StatelessWidget {
   static const ROUTE_NAME = '/search';
@@ -25,10 +24,8 @@ class SearchPage extends StatelessWidget {
             children: [
               TextField(
                 onSubmitted: (query) {
-                  Provider.of<MovieSearchNotifier>(context, listen: false)
-                      .fetchMovieSearch(query);
-                  Provider.of<TvSearchNotifier>(context, listen: false)
-                      .fetchTvSearch(query);
+                  context.read<MovieSearchBloc>().add(FetchMovieSearch(query));
+                  context.read<TvSearchBloc>().add(FetchTvSearch(query));
                 },
                 decoration: InputDecoration(
                   hintText: 'Search title',
@@ -44,59 +41,60 @@ class SearchPage extends StatelessWidget {
               ),
               TabBar(
                 tabs: [
-                  Consumer<TvSearchNotifier>(builder: (_, __, ___) {
-                    return Tab(
-                      text:
-                          'Tv Series (${Provider.of<TvSearchNotifier>(context, listen: false).searchResult.length})',
-                    );
-                  }),
-                  Consumer<MovieSearchNotifier>(builder: (_, __, ___) {
-                    return Tab(
-                      text:
-                          'Movies (${Provider.of<MovieSearchNotifier>(context, listen: false).searchResult.length})',
-                    );
-                  }),
+                  BlocBuilder<TvSearchBloc, TvSearchState>(
+                    builder: (context, state) {
+                      final count =
+                          (state is TvSearchLoaded) ? state.tvs.length : 0;
+                      return Tab(text: 'Tv Series ($count)');
+                    },
+                  ),
+                  BlocBuilder<MovieSearchBloc, MovieSearchState>(
+                    builder: (context, state) {
+                      final count = (state is MovieSearchLoaded)
+                          ? state.movies.length
+                          : 0;
+                      return Tab(text: 'Movies ($count)');
+                    },
+                  ),
                 ],
               ),
               Expanded(
                 child: TabBarView(
                   children: [
-                    Consumer<TvSearchNotifier>(
-                      builder: (context, data, child) {
-                        if (data.state == RequestState.Loading) {
+                    BlocBuilder<TvSearchBloc, TvSearchState>(
+                      builder: (context, state) {
+                        if (state is TvSearchLoading) {
                           return Center(
                             child: CircularProgressIndicator(),
                           );
-                        } else if (data.state == RequestState.Loaded) {
-                          final result = data.searchResult;
+                        } else if (state is TvSearchLoaded) {
                           return ListView.builder(
                             padding: const EdgeInsets.all(8),
                             itemBuilder: (context, index) {
-                              final tv = data.searchResult[index];
+                              final tv = state.tvs[index];
                               return TvCard(tv);
                             },
-                            itemCount: result.length,
+                            itemCount: state.tvs.length,
                           );
                         } else {
                           return Container();
                         }
                       },
                     ),
-                    Consumer<MovieSearchNotifier>(
-                      builder: (context, data, child) {
-                        if (data.state == RequestState.Loading) {
+                    BlocBuilder<MovieSearchBloc, MovieSearchState>(
+                      builder: (context, state) {
+                        if (state is MovieSearchLoading) {
                           return Center(
                             child: CircularProgressIndicator(),
                           );
-                        } else if (data.state == RequestState.Loaded) {
-                          final result = data.searchResult;
+                        } else if (state is MovieSearchLoaded) {
                           return ListView.builder(
                             padding: const EdgeInsets.all(8),
                             itemBuilder: (context, index) {
-                              final movie = data.searchResult[index];
+                              final movie = state.movies[index];
                               return MovieCard(movie);
                             },
-                            itemCount: result.length,
+                            itemCount: state.movies.length,
                           );
                         } else {
                           return Container();

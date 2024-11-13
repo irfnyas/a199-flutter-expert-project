@@ -1,38 +1,58 @@
-import 'package:ditonton/common/state_enum.dart';
+import 'package:bloc/bloc.dart';
 import 'package:ditonton/domain/entities/movie.dart';
 import 'package:ditonton/domain/usecases/get_watchlist_movies.dart';
-import 'package:flutter/foundation.dart';
+import 'package:equatable/equatable.dart';
 
-class WatchlistMovieNotifier extends ChangeNotifier {
-  var _watchlistMovies = <Movie>[];
-  List<Movie> get watchlistMovies => _watchlistMovies;
+// Events
+abstract class WatchlistMovieEvent extends Equatable {
+  @override
+  List<Object> get props => [];
+}
 
-  var _watchlistState = RequestState.Empty;
-  RequestState get watchlistState => _watchlistState;
+class FetchWatchlistMovies extends WatchlistMovieEvent {}
 
-  String _message = '';
-  String get message => _message;
+// States
+abstract class WatchlistMovieState extends Equatable {
+  @override
+  List<Object> get props => [];
+}
 
-  WatchlistMovieNotifier({required this.getWatchlistMovies});
+class WatchlistMovieEmpty extends WatchlistMovieState {}
 
+class WatchlistMovieLoading extends WatchlistMovieState {}
+
+class WatchlistMovieLoaded extends WatchlistMovieState {
+  final List<Movie> watchlistMovies;
+
+  WatchlistMovieLoaded(this.watchlistMovies);
+
+  @override
+  List<Object> get props => [watchlistMovies];
+}
+
+class WatchlistMovieError extends WatchlistMovieState {
+  final String message;
+
+  WatchlistMovieError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+// Bloc
+class WatchlistMovieBloc
+    extends Bloc<WatchlistMovieEvent, WatchlistMovieState> {
   final GetWatchlistMovies getWatchlistMovies;
 
-  Future<void> fetchWatchlistMovies() async {
-    _watchlistState = RequestState.Loading;
-    notifyListeners();
-
-    final result = await getWatchlistMovies.execute();
-    result.fold(
-      (failure) {
-        _watchlistState = RequestState.Error;
-        _message = failure.message;
-        notifyListeners();
-      },
-      (moviesData) {
-        _watchlistState = RequestState.Loaded;
-        _watchlistMovies = moviesData;
-        notifyListeners();
-      },
-    );
+  WatchlistMovieBloc({required this.getWatchlistMovies})
+      : super(WatchlistMovieEmpty()) {
+    on<FetchWatchlistMovies>((event, emit) async {
+      emit(WatchlistMovieLoading());
+      final result = await getWatchlistMovies.execute();
+      result.fold(
+        (failure) => emit(WatchlistMovieError(failure.message)),
+        (movies) => emit(WatchlistMovieLoaded(movies)),
+      );
+    });
   }
 }

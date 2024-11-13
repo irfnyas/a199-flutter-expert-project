@@ -1,39 +1,57 @@
-import 'package:ditonton/common/state_enum.dart';
+import 'package:bloc/bloc.dart';
 import 'package:ditonton/domain/entities/tv.dart';
 import 'package:ditonton/domain/usecases/get_popular_tvs.dart';
-import 'package:flutter/foundation.dart';
+import 'package:equatable/equatable.dart';
 
-class PopularTvsNotifier extends ChangeNotifier {
+// Define Events
+abstract class PopularTvsEvent extends Equatable {
+  @override
+  List<Object> get props => [];
+}
+
+class FetchPopularTvsEvent extends PopularTvsEvent {}
+
+// Define States
+abstract class PopularTvsState extends Equatable {
+  @override
+  List<Object> get props => [];
+}
+
+class PopularTvsEmpty extends PopularTvsState {}
+
+class PopularTvsLoading extends PopularTvsState {}
+
+class PopularTvsLoaded extends PopularTvsState {
+  final List<Tv> tvs;
+
+  PopularTvsLoaded(this.tvs);
+
+  @override
+  List<Object> get props => [tvs];
+}
+
+class PopularTvsError extends PopularTvsState {
+  final String message;
+
+  PopularTvsError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+// Define Bloc
+class PopularTvsBloc extends Bloc<PopularTvsEvent, PopularTvsState> {
   final GetPopularTvs getPopularTvs;
 
-  PopularTvsNotifier(this.getPopularTvs);
+  PopularTvsBloc(this.getPopularTvs) : super(PopularTvsEmpty()) {
+    on<FetchPopularTvsEvent>((event, emit) async {
+      emit(PopularTvsLoading());
+      final result = await getPopularTvs.execute();
 
-  RequestState _state = RequestState.Empty;
-  RequestState get state => _state;
-
-  List<Tv> _tvs = [];
-  List<Tv> get tvs => _tvs;
-
-  String _message = '';
-  String get message => _message;
-
-  Future<void> fetchPopularTvs() async {
-    _state = RequestState.Loading;
-    notifyListeners();
-
-    final result = await getPopularTvs.execute();
-
-    result.fold(
-      (failure) {
-        _message = failure.message;
-        _state = RequestState.Error;
-        notifyListeners();
-      },
-      (tvsData) {
-        _tvs = tvsData;
-        _state = RequestState.Loaded;
-        notifyListeners();
-      },
-    );
+      result.fold(
+        (failure) => emit(PopularTvsError(failure.message)),
+        (tvs) => emit(PopularTvsLoaded(tvs)),
+      );
+    });
   }
 }

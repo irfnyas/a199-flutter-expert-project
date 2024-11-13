@@ -1,38 +1,56 @@
-import 'package:ditonton/common/state_enum.dart';
+import 'package:bloc/bloc.dart';
 import 'package:ditonton/domain/entities/tv.dart';
 import 'package:ditonton/domain/usecases/get_watchlist_tvs.dart';
-import 'package:flutter/foundation.dart';
+import 'package:equatable/equatable.dart';
 
-class WatchlistTvNotifier extends ChangeNotifier {
-  var _watchlistTvs = <Tv>[];
-  List<Tv> get watchlistTvs => _watchlistTvs;
+// Events
+abstract class WatchlistTvEvent extends Equatable {
+  @override
+  List<Object> get props => [];
+}
 
-  var _watchlistState = RequestState.Empty;
-  RequestState get watchlistState => _watchlistState;
+class FetchWatchlistTvs extends WatchlistTvEvent {}
 
-  String _message = '';
-  String get message => _message;
+// States
+abstract class WatchlistTvState extends Equatable {
+  @override
+  List<Object> get props => [];
+}
 
-  WatchlistTvNotifier({required this.getWatchlistTvs});
+class WatchlistTvEmpty extends WatchlistTvState {}
 
+class WatchlistTvLoading extends WatchlistTvState {}
+
+class WatchlistTvLoaded extends WatchlistTvState {
+  final List<Tv> watchlistTvs;
+
+  WatchlistTvLoaded(this.watchlistTvs);
+
+  @override
+  List<Object> get props => [watchlistTvs];
+}
+
+class WatchlistTvError extends WatchlistTvState {
+  final String message;
+
+  WatchlistTvError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+// Bloc
+class WatchlistTvBloc extends Bloc<WatchlistTvEvent, WatchlistTvState> {
   final GetWatchlistTvs getWatchlistTvs;
 
-  Future<void> fetchWatchlistTvs() async {
-    _watchlistState = RequestState.Loading;
-    notifyListeners();
-
-    final result = await getWatchlistTvs.execute();
-    result.fold(
-      (failure) {
-        _watchlistState = RequestState.Error;
-        _message = failure.message;
-        notifyListeners();
-      },
-      (tvsData) {
-        _watchlistState = RequestState.Loaded;
-        _watchlistTvs = tvsData;
-        notifyListeners();
-      },
-    );
+  WatchlistTvBloc({required this.getWatchlistTvs}) : super(WatchlistTvEmpty()) {
+    on<FetchWatchlistTvs>((event, emit) async {
+      emit(WatchlistTvLoading());
+      final result = await getWatchlistTvs.execute();
+      result.fold(
+        (failure) => emit(WatchlistTvError(failure.message)),
+        (tvs) => emit(WatchlistTvLoaded(tvs)),
+      );
+    });
   }
 }

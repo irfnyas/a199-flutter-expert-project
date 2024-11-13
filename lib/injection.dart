@@ -48,14 +48,14 @@ final locator = GetIt.instance;
 void init() {
   // provider
   locator.registerFactory(
-    () => MovieListNotifier(
+    () => MovieListBloc(
       getNowPlayingMovies: locator(),
       getPopularMovies: locator(),
       getTopRatedMovies: locator(),
     ),
   );
   locator.registerFactory(
-    () => MovieDetailNotifier(
+    () => MovieDetailBloc(
       getMovieDetail: locator(),
       getMovieRecommendations: locator(),
       getWatchListStatus: locator(),
@@ -64,34 +64,34 @@ void init() {
     ),
   );
   locator.registerFactory(
-    () => MovieSearchNotifier(
+    () => MovieSearchBloc(
       searchMovies: locator(),
     ),
   );
   locator.registerFactory(
-    () => PopularMoviesNotifier(
+    () => PopularMoviesBloc(
       locator(),
     ),
   );
   locator.registerFactory(
-    () => TopRatedMoviesNotifier(
+    () => TopRatedMoviesBloc(
       getTopRatedMovies: locator(),
     ),
   );
   locator.registerFactory(
-    () => WatchlistMovieNotifier(
+    () => WatchlistMovieBloc(
       getWatchlistMovies: locator(),
     ),
   );
   locator.registerFactory(
-    () => TvListNotifier(
+    () => TvListBloc(
       getNowPlayingTvs: locator(),
       getPopularTvs: locator(),
       getTopRatedTvs: locator(),
     ),
   );
   locator.registerFactory(
-    () => TvDetailNotifier(
+    () => TvDetailBloc(
       getTvDetail: locator(),
       getTvRecommendations: locator(),
       getTvWatchListStatus: locator(),
@@ -100,27 +100,27 @@ void init() {
     ),
   );
   locator.registerFactory(
-    () => TvSearchNotifier(
+    () => TvSearchBloc(
       searchTvs: locator(),
     ),
   );
   locator.registerFactory(
-    () => PopularTvsNotifier(
+    () => PopularTvsBloc(
       locator(),
     ),
   );
   locator.registerFactory(
-    () => TopRatedTvsNotifier(
+    () => TopRatedTvsBloc(
       getTopRatedTvs: locator(),
     ),
   );
   locator.registerFactory(
-    () => WatchlistTvNotifier(
+    () => WatchlistTvBloc(
       getWatchlistTvs: locator(),
     ),
   );
   locator.registerFactory(
-    () => NowPlayingTvsNotifier(
+    () => NowPlayingTvsBloc(
       locator(),
     ),
   );

@@ -1,39 +1,57 @@
-import 'package:ditonton/common/state_enum.dart';
+import 'package:bloc/bloc.dart';
 import 'package:ditonton/domain/entities/tv.dart';
 import 'package:ditonton/domain/usecases/get_top_rated_tvs.dart';
-import 'package:flutter/foundation.dart';
+import 'package:equatable/equatable.dart';
 
-class TopRatedTvsNotifier extends ChangeNotifier {
+// Define Events
+abstract class TopRatedTvsEvent extends Equatable {
+  @override
+  List<Object> get props => [];
+}
+
+class FetchTopRatedTvsEvent extends TopRatedTvsEvent {}
+
+// Define States
+abstract class TopRatedTvsState extends Equatable {
+  @override
+  List<Object> get props => [];
+}
+
+class TopRatedTvsEmpty extends TopRatedTvsState {}
+
+class TopRatedTvsLoading extends TopRatedTvsState {}
+
+class TopRatedTvsLoaded extends TopRatedTvsState {
+  final List<Tv> tvs;
+
+  TopRatedTvsLoaded(this.tvs);
+
+  @override
+  List<Object> get props => [tvs];
+}
+
+class TopRatedTvsError extends TopRatedTvsState {
+  final String message;
+
+  TopRatedTvsError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+// Define Bloc
+class TopRatedTvsBloc extends Bloc<TopRatedTvsEvent, TopRatedTvsState> {
   final GetTopRatedTvs getTopRatedTvs;
 
-  TopRatedTvsNotifier({required this.getTopRatedTvs});
+  TopRatedTvsBloc({required this.getTopRatedTvs}) : super(TopRatedTvsEmpty()) {
+    on<FetchTopRatedTvsEvent>((event, emit) async {
+      emit(TopRatedTvsLoading());
+      final result = await getTopRatedTvs.execute();
 
-  RequestState _state = RequestState.Empty;
-  RequestState get state => _state;
-
-  List<Tv> _tvs = [];
-  List<Tv> get tvs => _tvs;
-
-  String _message = '';
-  String get message => _message;
-
-  Future<void> fetchTopRatedTvs() async {
-    _state = RequestState.Loading;
-    notifyListeners();
-
-    final result = await getTopRatedTvs.execute();
-
-    result.fold(
-      (failure) {
-        _message = failure.message;
-        _state = RequestState.Error;
-        notifyListeners();
-      },
-      (tvsData) {
-        _tvs = tvsData;
-        _state = RequestState.Loaded;
-        notifyListeners();
-      },
-    );
+      result.fold(
+        (failure) => emit(TopRatedTvsError(failure.message)),
+        (tvs) => emit(TopRatedTvsLoaded(tvs)),
+      );
+    });
   }
 }

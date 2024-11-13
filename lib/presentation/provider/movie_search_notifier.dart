@@ -1,38 +1,64 @@
-import 'package:ditonton/common/state_enum.dart';
+import 'package:bloc/bloc.dart';
 import 'package:ditonton/domain/entities/movie.dart';
 import 'package:ditonton/domain/usecases/search_movies.dart';
-import 'package:flutter/foundation.dart';
+import 'package:equatable/equatable.dart';
 
-class MovieSearchNotifier extends ChangeNotifier {
+// Events
+abstract class MovieSearchEvent extends Equatable {
+  @override
+  List<Object> get props => [];
+}
+
+class FetchMovieSearch extends MovieSearchEvent {
+  final String query;
+
+  FetchMovieSearch(this.query);
+
+  @override
+  List<Object> get props => [query];
+}
+
+// States
+abstract class MovieSearchState extends Equatable {
+  @override
+  List<Object> get props => [];
+}
+
+class MovieSearchEmpty extends MovieSearchState {}
+
+class MovieSearchLoading extends MovieSearchState {}
+
+class MovieSearchLoaded extends MovieSearchState {
+  final List<Movie> movies;
+
+  MovieSearchLoaded(this.movies);
+
+  @override
+  List<Object> get props => [movies];
+}
+
+class MovieSearchError extends MovieSearchState {
+  final String message;
+
+  MovieSearchError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+// Bloc
+class MovieSearchBloc extends Bloc<MovieSearchEvent, MovieSearchState> {
   final SearchMovies searchMovies;
 
-  MovieSearchNotifier({required this.searchMovies});
+  MovieSearchBloc({required this.searchMovies}) : super(MovieSearchEmpty()) {
+    on<FetchMovieSearch>((event, emit) async {
+      emit(MovieSearchLoading());
+      final result = await searchMovies.execute(event.query);
 
-  RequestState _state = RequestState.Empty;
-  RequestState get state => _state;
-
-  List<Movie> _searchResult = [];
-  List<Movie> get searchResult => _searchResult;
-
-  String _message = '';
-  String get message => _message;
-
-  Future<void> fetchMovieSearch(String query) async {
-    _state = RequestState.Loading;
-    notifyListeners();
-
-    final result = await searchMovies.execute(query);
-    result.fold(
-      (failure) {
-        _message = failure.message;
-        _state = RequestState.Error;
-        notifyListeners();
-      },
-      (data) {
-        _searchResult = data;
-        _state = RequestState.Loaded;
-        notifyListeners();
-      },
-    );
+      result.fold(
+        (failure) => emit(MovieSearchError(failure.message)),
+        (movies) => emit(MovieSearchLoaded(movies)),
+      );
+    });
   }
 }

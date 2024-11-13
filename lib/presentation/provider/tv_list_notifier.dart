@@ -1,96 +1,117 @@
-import 'package:ditonton/common/state_enum.dart';
+import 'package:bloc/bloc.dart';
 import 'package:ditonton/domain/entities/tv.dart';
 import 'package:ditonton/domain/usecases/get_now_playing_tvs.dart';
 import 'package:ditonton/domain/usecases/get_popular_tvs.dart';
 import 'package:ditonton/domain/usecases/get_top_rated_tvs.dart';
-import 'package:flutter/material.dart';
+import 'package:equatable/equatable.dart';
 
-class TvListNotifier extends ChangeNotifier {
-  var _nowPlayingTvs = <Tv>[];
-  List<Tv> get nowPlayingTvs => _nowPlayingTvs;
+// Events
+abstract class TvListEvent extends Equatable {
+  @override
+  List<Object> get props => [];
+}
 
-  RequestState _nowPlayingState = RequestState.Empty;
-  RequestState get nowPlayingState => _nowPlayingState;
+class FetchNowPlayingTvs extends TvListEvent {}
 
-  var _popularTvs = <Tv>[];
-  List<Tv> get popularTvs => _popularTvs;
+class FetchPopularTvs extends TvListEvent {}
 
-  RequestState _popularTvsState = RequestState.Empty;
-  RequestState get popularTvsState => _popularTvsState;
+class FetchTopRatedTvs extends TvListEvent {}
 
-  var _topRatedTvs = <Tv>[];
-  List<Tv> get topRatedTvs => _topRatedTvs;
+// States
+abstract class TvListState extends Equatable {
+  @override
+  List<Object> get props => [];
+}
 
-  RequestState _topRatedTvsState = RequestState.Empty;
-  RequestState get topRatedTvsState => _topRatedTvsState;
+class TvListEmpty extends TvListState {}
 
-  String _message = '';
-  String get message => _message;
+class TvListLoading extends TvListState {}
 
-  TvListNotifier({
-    required this.getNowPlayingTvs,
-    required this.getPopularTvs,
-    required this.getTopRatedTvs,
+class TvListLoaded extends TvListState {
+  final List<Tv> nowPlayingTvs;
+  final List<Tv> popularTvs;
+  final List<Tv> topRatedTvs;
+
+  TvListLoaded({
+    this.nowPlayingTvs = const [],
+    this.popularTvs = const [],
+    this.topRatedTvs = const [],
   });
 
+  @override
+  List<Object> get props => [nowPlayingTvs, popularTvs, topRatedTvs];
+}
+
+class TvListError extends TvListState {
+  final String message;
+
+  TvListError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+// Bloc
+class TvListBloc extends Bloc<TvListEvent, TvListState> {
   final GetNowPlayingTvs getNowPlayingTvs;
   final GetPopularTvs getPopularTvs;
   final GetTopRatedTvs getTopRatedTvs;
 
-  Future<void> fetchNowPlayingTvs() async {
-    _nowPlayingState = RequestState.Loading;
-    notifyListeners();
+  List<Tv> nowPlayingTvs = [];
+  List<Tv> popularTvs = [];
+  List<Tv> topRatedTvs = [];
 
-    final result = await getNowPlayingTvs.execute();
-    result.fold(
-      (failure) {
-        _nowPlayingState = RequestState.Error;
-        _message = failure.message;
-        notifyListeners();
-      },
-      (TvsData) {
-        _nowPlayingState = RequestState.Loaded;
-        _nowPlayingTvs = TvsData;
-        notifyListeners();
-      },
-    );
-  }
+  TvListBloc({
+    required this.getNowPlayingTvs,
+    required this.getPopularTvs,
+    required this.getTopRatedTvs,
+  }) : super(TvListEmpty()) {
+    on<FetchNowPlayingTvs>((event, emit) async {
+      emit(TvListLoading());
+      final result = await getNowPlayingTvs.execute();
+      result.fold(
+        (failure) => emit(TvListError(failure.message)),
+        (tvs) {
+          nowPlayingTvs = tvs;
+          emit(TvListLoaded(
+            nowPlayingTvs: nowPlayingTvs,
+            popularTvs: popularTvs,
+            topRatedTvs: topRatedTvs,
+          ));
+        },
+      );
+    });
 
-  Future<void> fetchPopularTvs() async {
-    _popularTvsState = RequestState.Loading;
-    notifyListeners();
+    on<FetchPopularTvs>((event, emit) async {
+      emit(TvListLoading());
+      final result = await getPopularTvs.execute();
+      result.fold(
+        (failure) => emit(TvListError(failure.message)),
+        (tvs) {
+          popularTvs = tvs;
+          emit(TvListLoaded(
+            nowPlayingTvs: nowPlayingTvs,
+            popularTvs: popularTvs,
+            topRatedTvs: topRatedTvs,
+          ));
+        },
+      );
+    });
 
-    final result = await getPopularTvs.execute();
-    result.fold(
-      (failure) {
-        _popularTvsState = RequestState.Error;
-        _message = failure.message;
-        notifyListeners();
-      },
-      (TvsData) {
-        _popularTvsState = RequestState.Loaded;
-        _popularTvs = TvsData;
-        notifyListeners();
-      },
-    );
-  }
-
-  Future<void> fetchTopRatedTvs() async {
-    _topRatedTvsState = RequestState.Loading;
-    notifyListeners();
-
-    final result = await getTopRatedTvs.execute();
-    result.fold(
-      (failure) {
-        _topRatedTvsState = RequestState.Error;
-        _message = failure.message;
-        notifyListeners();
-      },
-      (TvsData) {
-        _topRatedTvsState = RequestState.Loaded;
-        _topRatedTvs = TvsData;
-        notifyListeners();
-      },
-    );
+    on<FetchTopRatedTvs>((event, emit) async {
+      emit(TvListLoading());
+      final result = await getTopRatedTvs.execute();
+      result.fold(
+        (failure) => emit(TvListError(failure.message)),
+        (tvs) {
+          topRatedTvs = tvs;
+          emit(TvListLoaded(
+            nowPlayingTvs: nowPlayingTvs,
+            popularTvs: popularTvs,
+            topRatedTvs: topRatedTvs,
+          ));
+        },
+      );
+    });
   }
 }

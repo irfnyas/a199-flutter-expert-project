@@ -1,39 +1,57 @@
-import 'package:ditonton/common/state_enum.dart';
+import 'package:bloc/bloc.dart';
 import 'package:ditonton/domain/entities/movie.dart';
 import 'package:ditonton/domain/usecases/get_popular_movies.dart';
-import 'package:flutter/foundation.dart';
+import 'package:equatable/equatable.dart';
 
-class PopularMoviesNotifier extends ChangeNotifier {
+// Define Events
+abstract class PopularMoviesEvent extends Equatable {
+  @override
+  List<Object> get props => [];
+}
+
+class FetchPopularMoviesEvent extends PopularMoviesEvent {}
+
+// Define States
+abstract class PopularMoviesState extends Equatable {
+  @override
+  List<Object> get props => [];
+}
+
+class PopularMoviesEmpty extends PopularMoviesState {}
+
+class PopularMoviesLoading extends PopularMoviesState {}
+
+class PopularMoviesLoaded extends PopularMoviesState {
+  final List<Movie> movies;
+
+  PopularMoviesLoaded(this.movies);
+
+  @override
+  List<Object> get props => [movies];
+}
+
+class PopularMoviesError extends PopularMoviesState {
+  final String message;
+
+  PopularMoviesError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+// Define Bloc
+class PopularMoviesBloc extends Bloc<PopularMoviesEvent, PopularMoviesState> {
   final GetPopularMovies getPopularMovies;
 
-  PopularMoviesNotifier(this.getPopularMovies);
+  PopularMoviesBloc(this.getPopularMovies) : super(PopularMoviesEmpty()) {
+    on<FetchPopularMoviesEvent>((event, emit) async {
+      emit(PopularMoviesLoading());
+      final result = await getPopularMovies.execute();
 
-  RequestState _state = RequestState.Empty;
-  RequestState get state => _state;
-
-  List<Movie> _movies = [];
-  List<Movie> get movies => _movies;
-
-  String _message = '';
-  String get message => _message;
-
-  Future<void> fetchPopularMovies() async {
-    _state = RequestState.Loading;
-    notifyListeners();
-
-    final result = await getPopularMovies.execute();
-
-    result.fold(
-      (failure) {
-        _message = failure.message;
-        _state = RequestState.Error;
-        notifyListeners();
-      },
-      (moviesData) {
-        _movies = moviesData;
-        _state = RequestState.Loaded;
-        notifyListeners();
-      },
-    );
+      result.fold(
+        (failure) => emit(PopularMoviesError(failure.message)),
+        (movies) => emit(PopularMoviesLoaded(movies)),
+      );
+    });
   }
 }

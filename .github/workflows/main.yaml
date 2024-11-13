@@ -1,0 +1,31 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - submission/final
+
+env:
+  GOOGLE_SERVICES_JSON_PATH: android/app/google-services.json
+  FIREBASE_OPTIONS_DART_PATH: lib/firebase_options.dart
+  ARTIFACT_NAME: app-release.apk
+  ARTIFACT_PATH: build/app/outputs/flutter-apk/app-release.apk
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "21"
+      - uses: subosito/flutter-action@v2
+      - run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > ${{ env.GOOGLE_SERVICES_JSON_PATH }}
+      - run: echo "${{ secrets.FIREBASE_OPTIONS_DART }}" | base64 --decode > ${{ env.FIREBASE_OPTIONS_DART_PATH }}
+      - run: flutter pub get
+      - run: flutter build apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.ARTIFACT_PATH }}

@@ -1,6 +1,6 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:ditonton/common/failure.dart';
-import 'package:ditonton/common/state_enum.dart';
 import 'package:ditonton/domain/entities/movie.dart';
 import 'package:ditonton/domain/usecases/search_movies.dart';
 import 'package:ditonton/presentation/provider/movie_search_notifier.dart';
@@ -12,17 +12,12 @@ import 'movie_search_notifier_test.mocks.dart';
 
 @GenerateMocks([SearchMovies])
 void main() {
-  late MovieSearchNotifier provider;
+  late MovieSearchBloc movieSearchBloc;
   late MockSearchMovies mockSearchMovies;
-  late int listenerCallCount;
 
   setUp(() {
-    listenerCallCount = 0;
     mockSearchMovies = MockSearchMovies();
-    provider = MovieSearchNotifier(searchMovies: mockSearchMovies)
-      ..addListener(() {
-        listenerCallCount += 1;
-      });
+    movieSearchBloc = MovieSearchBloc(searchMovies: mockSearchMovies);
   });
 
   final tMovieModel = Movie(
@@ -43,41 +38,39 @@ void main() {
   );
   final tMovieList = <Movie>[tMovieModel];
   final tQuery = 'spiderman';
+  const tErrorMessage = 'Server Failure';
 
   group('search movies', () {
-    test('should change state to loading when usecase is called', () async {
-      // arrange
-      when(mockSearchMovies.execute(tQuery))
-          .thenAnswer((_) async => Right(tMovieList));
-      // act
-      provider.fetchMovieSearch(tQuery);
-      // assert
-      expect(provider.state, RequestState.Loading);
-    });
+    blocTest<MovieSearchBloc, MovieSearchState>(
+      'should emit [Loading, Loaded] when data is gotten successfully',
+      build: () {
+        when(mockSearchMovies.execute(tQuery))
+            .thenAnswer((_) async => Right(tMovieList));
+        return movieSearchBloc;
+      },
+      act: (bloc) => bloc.add(FetchMovieSearch(tQuery)),
+      expect: () => [
+        MovieSearchLoading(),
+        MovieSearchLoaded(tMovieList),
+      ],
+    );
 
-    test('should change search result data when data is gotten successfully',
-        () async {
-      // arrange
-      when(mockSearchMovies.execute(tQuery))
-          .thenAnswer((_) async => Right(tMovieList));
-      // act
-      await provider.fetchMovieSearch(tQuery);
-      // assert
-      expect(provider.state, RequestState.Loaded);
-      expect(provider.searchResult, tMovieList);
-      expect(listenerCallCount, 2);
-    });
+    blocTest<MovieSearchBloc, MovieSearchState>(
+      'should emit [Loading, Error] when data is unsuccessful',
+      build: () {
+        when(mockSearchMovies.execute(tQuery))
+            .thenAnswer((_) async => Left(ServerFailure(tErrorMessage)));
+        return movieSearchBloc;
+      },
+      act: (bloc) => bloc.add(FetchMovieSearch(tQuery)),
+      expect: () => [
+        MovieSearchLoading(),
+        MovieSearchError(tErrorMessage),
+      ],
+    );
+  });
 
-    test('should return error when data is unsuccessful', () async {
-      // arrange
-      when(mockSearchMovies.execute(tQuery))
-          .thenAnswer((_) async => Left(ServerFailure('Server Failure')));
-      // act
-      await provider.fetchMovieSearch(tQuery);
-      // assert
-      expect(provider.state, RequestState.Error);
-      expect(provider.message, 'Server Failure');
-      expect(listenerCallCount, 2);
-    });
+  tearDown(() {
+    movieSearchBloc.close();
   });
 }

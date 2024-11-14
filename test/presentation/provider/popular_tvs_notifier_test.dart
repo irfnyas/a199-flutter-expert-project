@@ -1,6 +1,6 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:ditonton/common/failure.dart';
-import 'package:ditonton/common/state_enum.dart';
 import 'package:ditonton/domain/entities/tv.dart';
 import 'package:ditonton/domain/usecases/get_popular_tvs.dart';
 import 'package:ditonton/presentation/provider/popular_tvs_notifier.dart';
@@ -13,16 +13,11 @@ import 'popular_tvs_notifier_test.mocks.dart';
 @GenerateMocks([GetPopularTvs])
 void main() {
   late MockGetPopularTvs mockGetPopularTvs;
-  late PopularTvsNotifier notifier;
-  late int listenerCallCount;
+  late PopularTvsBloc popularTvsBloc;
 
   setUp(() {
-    listenerCallCount = 0;
     mockGetPopularTvs = MockGetPopularTvs();
-    notifier = PopularTvsNotifier(mockGetPopularTvs)
-      ..addListener(() {
-        listenerCallCount++;
-      });
+    popularTvsBloc = PopularTvsBloc(mockGetPopularTvs);
   });
 
   final tTv = Tv(
@@ -41,37 +36,45 @@ void main() {
   );
 
   final tTvList = <Tv>[tTv];
+  const tErrorMessage = 'Server Failure';
 
-  test('should change state to loading when usecase is called', () async {
-    // arrange
-    when(mockGetPopularTvs.execute()).thenAnswer((_) async => Right(tTvList));
-    // act
-    notifier.fetchPopularTvs();
-    // assert
-    expect(notifier.state, RequestState.Loading);
-    expect(listenerCallCount, 1);
+  group('Popular TV Series', () {
+    blocTest<PopularTvsBloc, PopularTvsState>(
+      'should emit [PopularTvsLoading, PopularTvsLoaded] when data is loaded successfully',
+      build: () {
+        when(mockGetPopularTvs.execute())
+            .thenAnswer((_) async => Right(tTvList));
+        return popularTvsBloc;
+      },
+      act: (bloc) => bloc.add(FetchPopularTvsEvent()),
+      expect: () => [
+        PopularTvsLoading(),
+        PopularTvsLoaded(tTvList),
+      ],
+      verify: (_) {
+        verify(mockGetPopularTvs.execute()).called(1);
+      },
+    );
+
+    blocTest<PopularTvsBloc, PopularTvsState>(
+      'should emit [PopularTvsLoading, PopularTvsError] when fetching data fails',
+      build: () {
+        when(mockGetPopularTvs.execute())
+            .thenAnswer((_) async => Left(ServerFailure(tErrorMessage)));
+        return popularTvsBloc;
+      },
+      act: (bloc) => bloc.add(FetchPopularTvsEvent()),
+      expect: () => [
+        PopularTvsLoading(),
+        PopularTvsError(tErrorMessage),
+      ],
+      verify: (_) {
+        verify(mockGetPopularTvs.execute()).called(1);
+      },
+    );
   });
 
-  test('should change Tvs data when data is gotten successfully', () async {
-    // arrange
-    when(mockGetPopularTvs.execute()).thenAnswer((_) async => Right(tTvList));
-    // act
-    await notifier.fetchPopularTvs();
-    // assert
-    expect(notifier.state, RequestState.Loaded);
-    expect(notifier.tvs, tTvList);
-    expect(listenerCallCount, 2);
-  });
-
-  test('should return error when data is unsuccessful', () async {
-    // arrange
-    when(mockGetPopularTvs.execute())
-        .thenAnswer((_) async => Left(ServerFailure('Server Failure')));
-    // act
-    await notifier.fetchPopularTvs();
-    // assert
-    expect(notifier.state, RequestState.Error);
-    expect(notifier.message, 'Server Failure');
-    expect(listenerCallCount, 2);
+  tearDown(() {
+    popularTvsBloc.close();
   });
 }

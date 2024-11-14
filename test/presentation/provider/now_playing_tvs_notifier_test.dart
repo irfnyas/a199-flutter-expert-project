@@ -1,6 +1,6 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:ditonton/common/failure.dart';
-import 'package:ditonton/common/state_enum.dart';
 import 'package:ditonton/domain/entities/tv.dart';
 import 'package:ditonton/domain/usecases/get_now_playing_tvs.dart';
 import 'package:ditonton/presentation/provider/now_playing_tvs_notifier.dart';
@@ -8,21 +8,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import 'tv_list_notifier_test.mocks.dart';
+import 'now_playing_tvs_notifier_test.mocks.dart';
 
 @GenerateMocks([GetNowPlayingTvs])
 void main() {
   late MockGetNowPlayingTvs mockGetNowPlayingTvs;
-  late NowPlayingTvsNotifier notifier;
-  late int listenerCallCount;
+  late NowPlayingTvsBloc nowPlayingTvsBloc;
 
   setUp(() {
-    listenerCallCount = 0;
     mockGetNowPlayingTvs = MockGetNowPlayingTvs();
-    notifier = NowPlayingTvsNotifier(mockGetNowPlayingTvs)
-      ..addListener(() {
-        listenerCallCount++;
-      });
+    nowPlayingTvsBloc = NowPlayingTvsBloc(mockGetNowPlayingTvs);
   });
 
   final tTv = Tv(
@@ -41,39 +36,45 @@ void main() {
   );
 
   final tTvList = <Tv>[tTv];
+  const tErrorMessage = 'Server Failure';
 
-  test('should change state to loading when usecase is called', () async {
-    // arrange
-    when(mockGetNowPlayingTvs.execute())
-        .thenAnswer((_) async => Right(tTvList));
-    // act
-    notifier.fetchNowPlayingTvs();
-    // assert
-    expect(notifier.state, RequestState.Loading);
-    expect(listenerCallCount, 1);
+  group('now playing tv series', () {
+    blocTest<NowPlayingTvsBloc, NowPlayingTvsState>(
+      'should emit [NowPlayingTvsLoading, NowPlayingTvsLoaded] when data is gotten successfully',
+      build: () {
+        when(mockGetNowPlayingTvs.execute())
+            .thenAnswer((_) async => Right(tTvList));
+        return nowPlayingTvsBloc;
+      },
+      act: (bloc) => bloc.add(FetchNowPlayingTvsEvent()),
+      expect: () => [
+        NowPlayingTvsLoading(),
+        NowPlayingTvsLoaded(tTvList),
+      ],
+      verify: (bloc) {
+        verify(mockGetNowPlayingTvs.execute());
+      },
+    );
+
+    blocTest<NowPlayingTvsBloc, NowPlayingTvsState>(
+      'should emit [NowPlayingTvsLoading, NowPlayingTvsError] when getting data fails',
+      build: () {
+        when(mockGetNowPlayingTvs.execute())
+            .thenAnswer((_) async => Left(ServerFailure(tErrorMessage)));
+        return nowPlayingTvsBloc;
+      },
+      act: (bloc) => bloc.add(FetchNowPlayingTvsEvent()),
+      expect: () => [
+        NowPlayingTvsLoading(),
+        NowPlayingTvsError(tErrorMessage),
+      ],
+      verify: (bloc) {
+        verify(mockGetNowPlayingTvs.execute());
+      },
+    );
   });
 
-  test('should change Tvs data when data is gotten successfully', () async {
-    // arrange
-    when(mockGetNowPlayingTvs.execute())
-        .thenAnswer((_) async => Right(tTvList));
-    // act
-    await notifier.fetchNowPlayingTvs();
-    // assert
-    expect(notifier.state, RequestState.Loaded);
-    expect(notifier.tvs, tTvList);
-    expect(listenerCallCount, 2);
-  });
-
-  test('should return error when data is unsuccessful', () async {
-    // arrange
-    when(mockGetNowPlayingTvs.execute())
-        .thenAnswer((_) async => Left(ServerFailure('Server Failure')));
-    // act
-    await notifier.fetchNowPlayingTvs();
-    // assert
-    expect(notifier.state, RequestState.Error);
-    expect(notifier.message, 'Server Failure');
-    expect(listenerCallCount, 2);
+  tearDown(() {
+    nowPlayingTvsBloc.close();
   });
 }

@@ -1,6 +1,6 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:ditonton/common/failure.dart';
-import 'package:ditonton/common/state_enum.dart';
 import 'package:ditonton/domain/entities/movie.dart';
 import 'package:ditonton/domain/usecases/get_top_rated_movies.dart';
 import 'package:ditonton/presentation/provider/top_rated_movies_notifier.dart';
@@ -13,16 +13,12 @@ import 'top_rated_movies_notifier_test.mocks.dart';
 @GenerateMocks([GetTopRatedMovies])
 void main() {
   late MockGetTopRatedMovies mockGetTopRatedMovies;
-  late TopRatedMoviesNotifier notifier;
-  late int listenerCallCount;
+  late TopRatedMoviesBloc topRatedMoviesBloc;
 
   setUp(() {
-    listenerCallCount = 0;
     mockGetTopRatedMovies = MockGetTopRatedMovies();
-    notifier = TopRatedMoviesNotifier(getTopRatedMovies: mockGetTopRatedMovies)
-      ..addListener(() {
-        listenerCallCount++;
-      });
+    topRatedMoviesBloc =
+        TopRatedMoviesBloc(getTopRatedMovies: mockGetTopRatedMovies);
   });
 
   final tMovie = Movie(
@@ -42,39 +38,45 @@ void main() {
   );
 
   final tMovieList = <Movie>[tMovie];
+  const tErrorMessage = 'Server Failure';
 
-  test('should change state to loading when usecase is called', () async {
-    // arrange
-    when(mockGetTopRatedMovies.execute())
-        .thenAnswer((_) async => Right(tMovieList));
-    // act
-    notifier.fetchTopRatedMovies();
-    // assert
-    expect(notifier.state, RequestState.Loading);
-    expect(listenerCallCount, 1);
+  group('top rated movies', () {
+    blocTest<TopRatedMoviesBloc, TopRatedMoviesState>(
+      'should emit [TopRatedMoviesLoading, TopRatedMoviesLoaded] when data is loaded successfully',
+      build: () {
+        when(mockGetTopRatedMovies.execute())
+            .thenAnswer((_) async => Right(tMovieList));
+        return topRatedMoviesBloc;
+      },
+      act: (bloc) => bloc.add(FetchTopRatedMoviesEvent()),
+      expect: () => [
+        TopRatedMoviesLoading(),
+        TopRatedMoviesLoaded(tMovieList),
+      ],
+      verify: (_) {
+        verify(mockGetTopRatedMovies.execute()).called(1);
+      },
+    );
+
+    blocTest<TopRatedMoviesBloc, TopRatedMoviesState>(
+      'should emit [TopRatedMoviesLoading, TopRatedMoviesError] when fetching data fails',
+      build: () {
+        when(mockGetTopRatedMovies.execute())
+            .thenAnswer((_) async => Left(ServerFailure(tErrorMessage)));
+        return topRatedMoviesBloc;
+      },
+      act: (bloc) => bloc.add(FetchTopRatedMoviesEvent()),
+      expect: () => [
+        TopRatedMoviesLoading(),
+        TopRatedMoviesError(tErrorMessage),
+      ],
+      verify: (_) {
+        verify(mockGetTopRatedMovies.execute()).called(1);
+      },
+    );
   });
 
-  test('should change movies data when data is gotten successfully', () async {
-    // arrange
-    when(mockGetTopRatedMovies.execute())
-        .thenAnswer((_) async => Right(tMovieList));
-    // act
-    await notifier.fetchTopRatedMovies();
-    // assert
-    expect(notifier.state, RequestState.Loaded);
-    expect(notifier.movies, tMovieList);
-    expect(listenerCallCount, 2);
-  });
-
-  test('should return error when data is unsuccessful', () async {
-    // arrange
-    when(mockGetTopRatedMovies.execute())
-        .thenAnswer((_) async => Left(ServerFailure('Server Failure')));
-    // act
-    await notifier.fetchTopRatedMovies();
-    // assert
-    expect(notifier.state, RequestState.Error);
-    expect(notifier.message, 'Server Failure');
-    expect(listenerCallCount, 2);
+  tearDown(() {
+    topRatedMoviesBloc.close();
   });
 }

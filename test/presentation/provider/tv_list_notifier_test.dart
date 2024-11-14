@@ -1,6 +1,6 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:ditonton/common/failure.dart';
-import 'package:ditonton/common/state_enum.dart';
 import 'package:ditonton/domain/entities/tv.dart';
 import 'package:ditonton/domain/usecases/get_now_playing_tvs.dart';
 import 'package:ditonton/domain/usecases/get_popular_tvs.dart';
@@ -14,25 +14,10 @@ import 'tv_list_notifier_test.mocks.dart';
 
 @GenerateMocks([GetNowPlayingTvs, GetPopularTvs, GetTopRatedTvs])
 void main() {
-  late TvListNotifier provider;
+  late TvListBloc tvListBloc;
   late MockGetNowPlayingTvs mockGetNowPlayingTvs;
   late MockGetPopularTvs mockGetPopularTvs;
   late MockGetTopRatedTvs mockGetTopRatedTvs;
-  late int listenerCallCount;
-
-  setUp(() {
-    listenerCallCount = 0;
-    mockGetNowPlayingTvs = MockGetNowPlayingTvs();
-    mockGetPopularTvs = MockGetPopularTvs();
-    mockGetTopRatedTvs = MockGetTopRatedTvs();
-    provider = TvListNotifier(
-      getNowPlayingTvs: mockGetNowPlayingTvs,
-      getPopularTvs: mockGetPopularTvs,
-      getTopRatedTvs: mockGetTopRatedTvs,
-    )..addListener(() {
-        listenerCallCount += 1;
-      });
-  });
 
   final tTv = Tv(
     adult: false,
@@ -48,128 +33,112 @@ void main() {
     voteAverage: 1,
     voteCount: 1,
   );
+
   final tTvList = <Tv>[tTv];
+  const tErrorMessage = 'Server Failure';
 
-  group('now playing movies', () {
-    test('initialState should be Empty', () {
-      expect(provider.nowPlayingState, equals(RequestState.Empty));
-    });
-
-    test('should get data from the usecase', () async {
-      // arrange
-      when(mockGetNowPlayingTvs.execute())
-          .thenAnswer((_) async => Right(tTvList));
-      // act
-      provider.fetchNowPlayingTvs();
-      // assert
-      verify(mockGetNowPlayingTvs.execute());
-    });
-
-    test('should change state to Loading when usecase is called', () {
-      // arrange
-      when(mockGetNowPlayingTvs.execute())
-          .thenAnswer((_) async => Right(tTvList));
-      // act
-      provider.fetchNowPlayingTvs();
-      // assert
-      expect(provider.nowPlayingState, RequestState.Loading);
-    });
-
-    test('should change movies when data is gotten successfully', () async {
-      // arrange
-      when(mockGetNowPlayingTvs.execute())
-          .thenAnswer((_) async => Right(tTvList));
-      // act
-      await provider.fetchNowPlayingTvs();
-      // assert
-      expect(provider.nowPlayingState, RequestState.Loaded);
-      expect(provider.nowPlayingTvs, tTvList);
-      expect(listenerCallCount, 2);
-    });
-
-    test('should return error when data is unsuccessful', () async {
-      // arrange
-      when(mockGetNowPlayingTvs.execute())
-          .thenAnswer((_) async => Left(ServerFailure('Server Failure')));
-      // act
-      await provider.fetchNowPlayingTvs();
-      // assert
-      expect(provider.nowPlayingState, RequestState.Error);
-      expect(provider.message, 'Server Failure');
-      expect(listenerCallCount, 2);
-    });
+  setUp(() {
+    mockGetNowPlayingTvs = MockGetNowPlayingTvs();
+    mockGetPopularTvs = MockGetPopularTvs();
+    mockGetTopRatedTvs = MockGetTopRatedTvs();
+    tvListBloc = TvListBloc(
+      getNowPlayingTvs: mockGetNowPlayingTvs,
+      getPopularTvs: mockGetPopularTvs,
+      getTopRatedTvs: mockGetTopRatedTvs,
+    );
   });
 
-  group('popular movies', () {
-    test('should change state to loading when usecase is called', () async {
-      // arrange
-      when(mockGetPopularTvs.execute()).thenAnswer((_) async => Right(tTvList));
-      // act
-      provider.fetchPopularTvs();
-      // assert
-      expect(provider.popularTvsState, RequestState.Loading);
-      // verify(provider.setState(RequestState.Loading));
-    });
+  group('now playing tv series', () {
+    blocTest<TvListBloc, TvListState>(
+      'emits [TvListLoading, TvListLoaded] when data is fetched successfully',
+      build: () {
+        when(mockGetNowPlayingTvs.execute())
+            .thenAnswer((_) async => Right(tTvList));
+        return tvListBloc;
+      },
+      act: (bloc) => bloc.add(FetchNowPlayingTvs()),
+      expect: () => [
+        TvListLoading(),
+        TvListLoaded(nowPlayingTvs: tTvList),
+      ],
+    );
 
-    test('should change movies data when data is gotten successfully',
-        () async {
-      // arrange
-      when(mockGetPopularTvs.execute()).thenAnswer((_) async => Right(tTvList));
-      // act
-      await provider.fetchPopularTvs();
-      // assert
-      expect(provider.popularTvsState, RequestState.Loaded);
-      expect(provider.popularTvs, tTvList);
-      expect(listenerCallCount, 2);
-    });
-
-    test('should return error when data is unsuccessful', () async {
-      // arrange
-      when(mockGetPopularTvs.execute())
-          .thenAnswer((_) async => Left(ServerFailure('Server Failure')));
-      // act
-      await provider.fetchPopularTvs();
-      // assert
-      expect(provider.popularTvsState, RequestState.Error);
-      expect(provider.message, 'Server Failure');
-      expect(listenerCallCount, 2);
-    });
+    blocTest<TvListBloc, TvListState>(
+      'emits [TvListLoading, TvListError] when fetching data fails',
+      build: () {
+        when(mockGetNowPlayingTvs.execute())
+            .thenAnswer((_) async => Left(ServerFailure(tErrorMessage)));
+        return tvListBloc;
+      },
+      act: (bloc) => bloc.add(FetchNowPlayingTvs()),
+      expect: () => [
+        TvListLoading(),
+        TvListError(tErrorMessage),
+      ],
+    );
   });
 
-  group('top rated movies', () {
-    test('should change state to loading when usecase is called', () async {
-      // arrange
-      when(mockGetTopRatedTvs.execute())
-          .thenAnswer((_) async => Right(tTvList));
-      // act
-      provider.fetchTopRatedTvs();
-      // assert
-      expect(provider.topRatedTvsState, RequestState.Loading);
-    });
+  group('FetchPopularTvs', () {
+    blocTest<TvListBloc, TvListState>(
+      'emits [TvListLoading, TvListLoaded] when data is fetched successfully',
+      build: () {
+        when(mockGetPopularTvs.execute())
+            .thenAnswer((_) async => Right(tTvList));
+        return tvListBloc;
+      },
+      act: (bloc) => bloc.add(FetchPopularTvs()),
+      expect: () => [
+        TvListLoading(),
+        TvListLoaded(popularTvs: tTvList),
+      ],
+    );
 
-    test('should change movies data when data is gotten successfully',
-        () async {
-      // arrange
-      when(mockGetTopRatedTvs.execute())
-          .thenAnswer((_) async => Right(tTvList));
-      // act
-      await provider.fetchTopRatedTvs();
-      // assert
-      expect(provider.topRatedTvsState, RequestState.Loaded);
-      expect(provider.topRatedTvs, tTvList);
-      expect(listenerCallCount, 2);
-    });
+    blocTest<TvListBloc, TvListState>(
+      'emits [TvListLoading, TvListError] when fetching data fails',
+      build: () {
+        when(mockGetPopularTvs.execute())
+            .thenAnswer((_) async => Left(ServerFailure(tErrorMessage)));
+        return tvListBloc;
+      },
+      act: (bloc) => bloc.add(FetchPopularTvs()),
+      expect: () => [
+        TvListLoading(),
+        TvListError(tErrorMessage),
+      ],
+    );
+  });
 
-    test('should return error when data is unsuccessful', () async {
-      // arrange
-      when(mockGetTopRatedTvs.execute())
-          .thenAnswer((_) async => Left(ServerFailure('Server Failure')));
-      // act
-      await provider.fetchTopRatedTvs();
-      // assert
-      expect(provider.topRatedTvsState, RequestState.Error);
-      expect(provider.message, 'Server Failure');
-      expect(listenerCallCount, 2);
-    });
+  group('FetchTopRatedTvs', () {
+    blocTest<TvListBloc, TvListState>(
+      'emits [TvListLoading, TvListLoaded] when data is fetched successfully',
+      build: () {
+        when(mockGetTopRatedTvs.execute())
+            .thenAnswer((_) async => Right(tTvList));
+        return tvListBloc;
+      },
+      act: (bloc) => bloc.add(FetchTopRatedTvs()),
+      expect: () => [
+        TvListLoading(),
+        TvListLoaded(topRatedTvs: tTvList),
+      ],
+    );
+
+    blocTest<TvListBloc, TvListState>(
+      'emits [TvListLoading, TvListError] when fetching data fails',
+      build: () {
+        when(mockGetTopRatedTvs.execute())
+            .thenAnswer((_) async => Left(ServerFailure(tErrorMessage)));
+        return tvListBloc;
+      },
+      act: (bloc) => bloc.add(FetchTopRatedTvs()),
+      expect: () => [
+        TvListLoading(),
+        TvListError(tErrorMessage),
+      ],
+    );
+  });
+
+  tearDown(() {
+    tvListBloc.close();
   });
 }

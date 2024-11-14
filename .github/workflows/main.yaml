@@ -24,6 +24,7 @@ jobs:
       - run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > ${{ env.GOOGLE_SERVICES_JSON_PATH }}
       - run: echo "${{ secrets.FIREBASE_OPTIONS_DART }}" | base64 --decode > ${{ env.FIREBASE_OPTIONS_DART_PATH }}
       - run: flutter pub get
+      - run: flutter test
       - run: flutter build apk
       - uses: actions/upload-artifact@v4
         with:
